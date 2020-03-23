@@ -1,0 +1,136 @@
+{
+  "dataset_reader": {
+    "type": "conll2009_en",
+    "data_folder": "/afs/inf.ed.ac.uk/group/project/xchen13/datasets/2009_conll_p2/data/CoNLL2009-ST-English/",
+    "token_indexers": {
+      "elmo": {
+        "type": "elmo_characters"
+      }
+    }
+  },
+  "train_data_path": "/afs/inf.ed.ac.uk/group/project/xchen13/datasets/2009_conll_p2/data/CoNLL2009-ST-English/CoNLL2009-ST-English-train.txt",
+  "validation_data_path": "/afs/inf.ed.ac.uk/group/project/xchen13/datasets/2009_conll_p2/data/CoNLL2009-ST-English/CoNLL2009-ST-English-development.txt",
+  "test_data_path": "/afs/inf.ed.ac.uk/group/project/xchen13/datasets/2009_conll_p2/data/CoNLL2009-ST-English/CoNLL2009-ST-evaluation-English.txt",
+  "model": {
+    "type": "advanced_srl_capsule",
+    "text_field_embedder": {
+      "elmo": {
+        "type": "elmo_token_embedder",
+        "options_file": "/afs/inf.ed.ac.uk/group/project/xchen13/elmo/elmo_2x4096_512_2048cnn_2xhighway_options.json",
+        "weight_file": "/afs/inf.ed.ac.uk/group/project/xchen13/elmo/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5",
+        "dropout": 0
+      }
+      },
+      "pos_tag_embedding": {
+        "embedding_dim": 64,
+        "vocab_namespace": "pos"
+      },
+      "predicate_embedding": {
+        "embedding_dim": 128,
+        "vocab_namespace": "predicates"
+      },
+      "encoder": {
+        "type": "stacked_bidirectional_lstm",
+        "input_size": 1088,
+        "hidden_size": 500,
+        "num_layers": 3,
+        "recurrent_dropout_probability": 0.3,
+        "use_highway": true
+      },
+      "arc_representation_dim":1,
+      "tag_representation_dim": 100,
+      "rank": 25,
+      "capsule_dim": 16,
+      "iter_num": 2,
+      "double_loss": false,
+      "base_average": false,
+      "bilinear_matrix_capsule": true,
+      "using_global": false,
+      "passing_type": "attention",
+      "global_node": false,
+      "dropout": 0.3,
+      "input_dropout": 0.3,
+      "delta_type":"kl_only",
+      "initializer": [
+        [
+          ".*feedforward.*weight",
+          {
+            "type": "xavier_uniform"
+          }
+        ],
+        [
+          ".*feedforward.*bias",
+          {
+            "type": "zero"
+          }
+        ],
+        [
+          ".*tag_bilinear.*weight",
+          {
+            "type": "xavier_uniform"
+          }
+        ],
+        [
+          ".*tag_bilinear.*bias",
+          {
+            "type": "zero"
+          }
+        ],
+        [
+          ".*weight_ih.*",
+          {
+            "type": "xavier_uniform"
+          }
+        ],
+        [
+          ".*weight_hh.*",
+          {
+            "type": "orthogonal"
+          }
+        ],
+        [
+          ".*bias_ih.*",
+          {
+            "type": "zero"
+          }
+        ],
+        [
+          ".*bias_hh.*",
+          {
+            "type": "lstm_hidden_bias"
+          }
+        ]
+      ],
+      "regularizer": [
+        [
+          "scalar_parameters",
+          {
+            "type": "l2",
+            "alpha": 0.0001
+          }
+        ]
+      ]
+    },
+    "iterator": {
+      "type": "bucket",
+      "biggest_batch_first": true,
+      "sorting_keys": [
+        [
+          "tokens",
+          "num_tokens"
+        ]
+      ],
+      "batch_size": 32
+    },
+    "trainer": {
+      "num_epochs": 600,
+      "grad_norm": 5.0,
+      "patience": 100,
+      "cuda_device":  2,
+      "validation_metric": "+F",
+      "optimizer": {
+          "type": "adam",
+          "lr": 0.0004
+      }
+    }
+  }

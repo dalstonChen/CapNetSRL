@@ -1,0 +1,13 @@
+{
+  "dataset_reader": {
+    "type": "conll2009",
+    "data_folder": "/afs/inf.ed.ac.uk/user/s15/s1544871/Data/2009_conll_p2/data/CoNLL2009-ST-English/",
+    "token_indexers": {
+      "elmo": {
+        "type": "elmo_characters"
+      }
+    }
+  },
+  "data_path": "/afs/inf.ed.ac.uk/user/s15/s1544871/Data/2009_conll_p2/data/CoNLL2009-ST-English/CoNLL2009-ST-evaluation-English.txt",
+  "model": "/afs/inf.ed.ac.uk/group/project/xchen13/tmp/model.tar.gz"
+}

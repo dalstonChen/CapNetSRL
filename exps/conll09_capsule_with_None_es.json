@@ -1,0 +1,140 @@
+{
+  "dataset_reader": {
+    "type": "conll2009_es",
+    "data_folder": "/afs/inf.ed.ac.uk/group/project/xchen13/datasets/2009_conll_p1/data/CoNLL2009-ST-Spanish/",
+    "filter": true
+  },
+  "train_data_path": "/afs/inf.ed.ac.uk/group/project/xchen13/datasets/2009_conll_p1/data/CoNLL2009-ST-Spanish/CoNLL2009-ST-Spanish-train.txt",
+  "validation_data_path": "/afs/inf.ed.ac.uk/group/project/xchen13/datasets/2009_conll_p1/data/CoNLL2009-ST-Spanish/CoNLL2009-ST-Spanish-development.txt",
+  "test_data_path": "/afs/inf.ed.ac.uk/group/project/xchen13/datasets/2009_conll_p1/data/CoNLL2009-ST-Spanish/CoNLL2009-ST-evaluation-Spanish.txt",
+  "model": {
+    "type": "srl_capsule_none",
+    "text_field_embedder": {
+            "tokens": {
+                "type": "embedding",
+                "embedding_dim": 300,
+                "pretrained_file": "/afs/inf.ed.ac.uk/group/project/xchen13/word_embedding/cc.es.300.vec.gz",
+                "sparse": true,
+                "trainable": true
+            }
+        },
+      "pos_tag_embedding": {
+        "embedding_dim": 64,
+        "vocab_namespace": "pos",
+        "sparse": true
+      },
+      "predicate_embedding": {
+        "embedding_dim": 64,
+        "vocab_namespace": "predicates",
+        "sparse": true
+      },
+      "encoder": {
+        "type": "stacked_bidirectional_lstm",
+        "input_size": 364,
+        "hidden_size": 500,
+        "num_layers": 2,
+        "recurrent_dropout_probability": 0.3,
+        "use_highway": true
+      },
+      "arc_representation_dim":1,
+      "tag_representation_dim": 300,
+      "rank": 25,
+      "capsule_dim": 1,
+    "comments": "CapDim 16",
+      "iter_num": 2,
+      "double_loss": false,
+      "base_average": true,
+      "bilinear_matrix_capsule": true,
+      "using_global": false,
+      "passing_type": "plain",
+      "global_node": true,
+      "dropout": 0.3,
+      "input_dropout": 0.3,
+      "delta_type":"kl_only",
+      "initializer": [
+        [
+          ".*feedforward.*weight",
+          {
+            "type": "xavier_uniform"
+          }
+        ],
+        [
+          ".*feedforward.*bias",
+          {
+            "type": "zero"
+          }
+        ],
+        [
+          ".*tag_bilinear.*weight",
+          {
+            "type": "xavier_uniform"
+          }
+        ],
+        [
+          ".*tag_bilinear.*bias",
+          {
+            "type": "zero"
+          }
+        ],
+        [
+          ".*weight_ih.*",
+          {
+            "type": "xavier_uniform"
+          }
+        ],
+        [
+          ".*weight_hh.*",
+          {
+            "type": "orthogonal"
+          }
+        ],
+        [
+          ".*bias_ih.*",
+          {
+            "type": "zero"
+          }
+        ],
+        [
+          ".*bias_hh.*",
+          {
+            "type": "lstm_hidden_bias"
+          }
+        ]
+      ],
+      "regularizer": [
+        [
+          "scalar_parameters",
+          {
+            "type": "l2",
+            "alpha": 0.0001
+          }
+        ]
+      ]
+    },
+    "iterator": {
+      "type": "bucket",
+      "biggest_batch_first": true,
+      "sorting_keys": [
+        [
+          "tokens",
+          "num_tokens"
+        ]
+      ],
+      "batch_size": 16
+    },
+    "trainer": {
+      "num_epochs": 100,
+      "grad_norm": 5.0,
+      "patience": 50,
+      "cuda_device":  3,
+      "validation_metric": "+F",
+      "optimizer": {
+          "type": "dense_sparse_adam",
+          "lr":3e-4,
+          "betas": [
+            0.9,
+            0.9
+          ]
+      }
+    }
+  }
